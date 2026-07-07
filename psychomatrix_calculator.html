@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор Психоматрицы</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 6px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        input {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-bottom: 30px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result-section {
+            display: none;
+        }
+
+        .result-section.active {
+            display: block;
+        }
+
+        .calculation-steps {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .step {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .psychomatrix-container {
+            margin: 30px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        table {
+            border-collapse: collapse;
+            background: white;
+        }
+
+        td {
+            width: 80px;
+            height: 80px;
+            border: 2px solid #667eea;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            padding: 8px;
+            word-wrap: break-word;
+            overflow: hidden;
+        }
+
+        td:empty {
+            background: #f5f5f5;
+        }
+
+        .type-result {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .type-name {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .type-description {
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .type-details {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .detail-title {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .detail-text {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .reset-button {
+            background: #e0e0e0;
+            color: #333;
+            margin-top: 20px;
+        }
+
+        .reset-button:hover {
+            background: #d0d0d0;
+        }
+
+        .error {
+            color: #d32f2f;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .input-group {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+
+            td {
+                width: 60px;
+                height: 60px;
+                font-size: 14px;
+            }
+
+            .type-name {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔮 Психоматрица</h1>
+        <p class="subtitle">Узнай свой тип мышления по дате рождения</p>
+
+        <div id="inputSection">
+            <div class="input-group">
+                <div class="input-field">
+                    <label for="day">День</label>
+                    <input type="number" id="day" min="1" max="31" placeholder="15">
+                </div>
+                <div class="input-field">
+                    <label for="month">Месяц</label>
+                    <input type="number" id="month" min="1" max="12" placeholder="4">
+                </div>
+                <div class="input-field">
+                    <label for="year">Год</label>
+                    <input type="number" id="year" min="1900" max="2025" placeholder="1972">
+                </div>
+            </div>
+            <div id="error" class="error"></div>
+            <button onclick="calculatePsychomatrix()">Рассчитать</button>
+        </div>
+
+        <div id="resultSection" class="result-section">
+            <div class="calculation-steps" id="steps"></div>
+
+            <h2 style="text-align: center; color: #667eea; margin-bottom: 20px; font-size: 18px;">ПСИХОМАТРИЦА</h2>
+            <div class="psychomatrix-container">
+                <table id="matrix"></table>
+            </div>
+
+            <div class="type-result">
+                <div class="type-name" id="typeName"></div>
+                <div class="type-description" id="typeDescription"></div>
+            </div>
+
+            <div class="type-details">
+                <div class="detail-title">Характеристики:</div>
+                <div class="detail-text" id="typeCharacteristics"></div>
+            </div>
+
+            <button class="reset-button" onclick="resetCalculator()">← Рассчитать ещё раз</button>
+        </div>
+    </div>
+
+    <script>
+        const typeDefinitions = {
+            ellipse: {
+                name: "ЭЛЛИПС",
+                emoji: "🟣",
+                description: "Ты видишь мир логично и системно",
+                characteristics: "Конструктор, изобретатель, создатель. Ты строишь логичные системы и требуешь понимания от окружающих. Сильная воля, уверенность в своём видении. Главное - научись открытости к другим мнениям.",
+                color: "#667eea"
+            },
+            parabola: {
+                name: "ПАРАБОЛА",
+                emoji: "📈",
+                description: "Ты исследователь и философ будущего",
+                characteristics: "Теоретик, визионер, мыслитель. Ты видишь то, что другие не замечают. Способен выделять важные параметры, составлять прогнозы. Интуиция - твой главный инструмент. Развивай практические навыки.",
+                color: "#f59e0b"
+            },
+            hyperbola: {
+                name: "ГИПЕРБОЛА",
+                emoji: "📊",
+                description: "Ты управленец и производитель",
+                characteristics: "Руководитель, практик, организатор. Ты берёшь готовые модели и делаешь их реальностью. Умеешь повторять, воспроизводить, масштабировать. Стабильный, надёжный. Ищи творческую составляющую в работе.",
+                color: "#10b981"
+            },
+            point_imaginary: {
+                name: "ТОЧКА С МНИМЫМИ ПРЯМЫМИ",
+                emoji: "❌",
+                description: "Ты революционер-разрушитель",
+                characteristics: "Реформатор, революционер, критик. Видишь несовершенства везде и хочешь всё переделать. Твоя миссия - разрушить старое, но помни: новое должно быть конструктивным. Учись созидать, а не только крушить.",
+                color: "#ef4444"
+            },
+            point_real: {
+                name: "ТОЧКА С ДЕЙСТВИТЕЛЬНЫМИ ПРЯМЫМИ",
+                emoji: "🔄",
+                description: "Ты революционер-реформатор",
+                characteristics: "Инноватор, переформатор, носитель новых ценностей. Ты не разрушаешь, а переименовываешь и переосмысляешь мир. Видишь иную систему координат. Вдохновляющий лидер. Помни о стабильности.",
+                color: "#8b5cf6"
+            },
+            parallel: {
+                name: "ПАРАЛЛЕЛЬНЫЕ ПРЯМЫЕ",
+                emoji: "📋",
+                description: "Ты педант и хранитель порядка",
+                characteristics: "Организатор, система-мейкер, ретроград. Ты создаёшь порядок и правила, которым следуют все. Дисциплинирован, пунктуален, последователен. Главный вызов - гибкость. Мир меняется, и правила тоже должны эволюционировать.",
+                color: "#6366f1"
+            }
+        };
+
+        function validateInput() {
+            const day = parseInt(document.getElementById('day').value);
+            const month = parseInt(document.getElementById('month').value);
+            const year = parseInt(document.getElementById('year').value);
+            const errorDiv = document.getElementById('error');
+
+            errorDiv.textContent = '';
+
+            if (!day || !month || !year) {
+                errorDiv.textContent = 'Пожалуйста, заполни все поля';
+                return false;
+            }
+
+            if (day < 1 || day > 31) {
+                errorDiv.textContent = 'День должен быть от 1 до 31';
+                return false;
+            }
+
+            if (month < 1 || month > 12) {
+                errorDiv.textContent = 'Месяц должен быть от 1 до 12';
+                return false;
+            }
+
+            if (year < 1900 || year > 2025) {
+                errorDiv.textContent = 'Год должен быть от 1900 до 2025';
+                return false;
+            }
+
+            return true;
+        }
+
+        function calculatePsychomatrix() {
+            if (!validateInput()) return;
+
+            const day = parseInt(document.getElementById('day').value);
+            const month = parseInt(document.getElementById('month').value);
+            const year = parseInt(document.getElementById('year').value);
+
+            // Создаём строку дня: день без ведущего нуля
+            const dateString = `${day}${month}${year}`;
+            const digits = dateString.split('').map(Number);
+
+            // Вычисляем дополнительные числа
+            const firstNumber = digits.reduce((a, b) => a + b, 0);
+            const firstDigits = String(firstNumber).split('').map(Number);
+            const secondNumber = firstDigits.reduce((a, b) => a + b, 0);
+
+            const thirdNumber = firstNumber - (digits[0] * 2);
+            const thirdDigits = String(Math.abs(thirdNumber)).split('').map(Number);
+            const fourthNumber = thirdDigits.reduce((a, b) => a + b, 0);
+
+            // Разбиваем дополнительные числа на цифры
+            const extraDigits = [
+                ...String(firstNumber).split('').map(Number),
+                ...String(secondNumber).split('').map(Number),
+                ...String(thirdNumber).split('').map(Number),
+                ...String(fourthNumber).split('').map(Number)
+            ];
+            
+            // Создаём психоматрицу
+            const allDigits = [...digits, ...extraDigits];
+            const psychomatrix = [
+                ['', '', ''],
+                ['', '', ''],
+                ['', '', '']
+            ];
+
+            // Заполняем матрицу (числа 1-9, число 0 не входит)
+            for (let num = 1; num <= 9; num++) {
+                const digitString = allDigits.filter(d => d === num).map(String).join('');
+                const position = [
+                    [0, 0], [1, 0], [2, 0],  // 1, 2, 3 - первый столбец
+                    [0, 1], [1, 1], [2, 1],  // 4, 5, 6 - второй столбец
+                    [0, 2], [1, 2], [2, 2]   // 7, 8, 9 - третий столбец
+                ][num - 1];
+                psychomatrix[position[0]][position[1]] = digitString;
+            }
+
+            // Определяем тип мышления
+            const type = determineMindType(psychomatrix, allDigits);
+
+            // Выводим результаты
+            displayResults(day, month, year, firstNumber, secondNumber, thirdNumber, fourthNumber, 
+                         psychomatrix, type);
+        }
+
+        function determineMindType(matrix, allDigits) {
+            // Создаём численную матрицу (количество каждой цифры)
+            const numericMatrix = [];
+            for (let i = 0; i < 3; i++) {
+                const row = [];
+                for (let j = 0; j < 3; j++) {
+                    row.push(matrix[i][j].length); // Длина строки = количество цифр
+                }
+                numericMatrix.push(row);
+            }
+
+            // Вычисляем малый определитель δ (диагонали)
+            const mainDiag = numericMatrix[0][0] * numericMatrix[1][1] * numericMatrix[2][2];
+            const secondDiag = numericMatrix[0][2] * numericMatrix[1][1] * numericMatrix[2][0];
+            const delta = mainDiag - secondDiag;
+
+            // Вычисляем большой определитель Δ (полный детерминант)
+            const a = numericMatrix[0][0], b = numericMatrix[0][1], c = numericMatrix[0][2];
+            const d = numericMatrix[1][0], e = numericMatrix[1][1], f = numericMatrix[1][2];
+            const g = numericMatrix[2][0], h = numericMatrix[2][1], i = numericMatrix[2][2];
+            
+            const Delta = a*(e*i - f*h) - b*(d*i - f*g) + c*(d*h - e*g);
+
+            // Определяем тип по значениям δ и Δ
+            if (Delta === 0) {
+                return 'parallel'; // Параллельные прямые
+            } else if (delta > 0 && Delta > 0) {
+                return 'ellipse'; // Эллипс
+            } else if (Math.abs(delta) < 1 || (delta >= -1 && delta <= 1)) {
+                return 'parabola'; // Парабола (δ близко к 0)
+            } else if (delta > 0 && Delta < 0) {
+                return 'hyperbola'; // Гипербола
+            } else if (delta < 0 && Delta > 0) {
+                return 'point_imaginary'; // Точка с мнимыми прямыми
+            } else if (delta < 0 && Delta < 0) {
+                return 'point_real'; // Точка с действительными прямыми
+            } else {
+                return 'ellipse'; // По умолчанию
+            }
+        }
+
+        function displayResults(day, month, year, first, second, third, fourth, matrix, type) {
+            const stepsHtml = `
+                <div class="step">
+                    <span class="step-title">Шаг 1:</span> Сложи все цифры даты: ${day}+${month}+${year} = <strong>${first}</strong>
+                </div>
+                <div class="step">
+                    <span class="step-title">Шаг 2:</span> Сложи цифры первого числа: ${String(first).split('').join('+')} = <strong>${second}</strong>
+                </div>
+                <div class="step">
+                    <span class="step-title">Шаг 3:</span> Вычти из первого числа первую цифру ×2: ${first} - ${day}×2 = <strong>${third}</strong>
+                </div>
+                <div class="step">
+                    <span class="step-title">Шаг 4:</span> Сложи цифры третьего числа: ${String(Math.abs(third)).split('').join('+')} = <strong>${fourth}</strong>
+                </div>
+            `;
+
+            document.getElementById('steps').innerHTML = stepsHtml;
+
+            // Создаём таблицу психоматрицы
+            let tableHtml = '<tbody>';
+            for (let i = 0; i < 3; i++) {
+                tableHtml += '<tr>';
+                for (let j = 0; j < 3; j++) {
+                    tableHtml += `<td>${matrix[i][j]}</td>`;
+                }
+                tableHtml += '</tr>';
+            }
+            tableHtml += '</tbody>';
+            document.getElementById('matrix').innerHTML = tableHtml;
+
+            // Выводим тип
+            const typeDef = typeDefinitions[type];
+            document.getElementById('typeName').textContent = typeDef.emoji + ' ' + typeDef.name;
+            document.getElementById('typeDescription').textContent = typeDef.description;
+            document.getElementById('typeCharacteristics').textContent = typeDef.characteristics;
+
+            document.getElementById('inputSection').style.display = 'none';
+            document.getElementById('resultSection').classList.add('active');
+        }
+
+        function resetCalculator() {
+            document.getElementById('day').value = '';
+            document.getElementById('month').value = '';
+            document.getElementById('year').value = '';
+            document.getElementById('error').textContent = '';
+            document.getElementById('inputSection').style.display = 'block';
+            document.getElementById('resultSection').classList.remove('active');
+        }
+    </script>
+</body>
+</html>
